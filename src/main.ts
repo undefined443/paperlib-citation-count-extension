@@ -52,20 +52,21 @@ class PaperlibCitationCountExtension extends PLExtension {
       },
     });
 
+    const SS_BASE = "https://api.semanticscholar.org/graph/v1/paper";
+    const SS_FIELDS = "fields=title,citationCount,influentialCitationCount";
+
     let scrapeURL: string;
     if (paperEntity.doi !== "") {
-      scrapeURL = `https://api.paperlib.app/metadata/citationcount?doi=${paperEntity.doi}`;
+      scrapeURL = `${SS_BASE}/DOI:${paperEntity.doi}?${SS_FIELDS}`;
     } else if (paperEntity.arxiv !== "") {
-      scrapeURL = `https://api.paperlib.app/metadata/citationcount?arxiv=${
-        paperEntity.arxiv.toLowerCase().replace("arxiv:", "").split("v")[0]
-      }`;
+      const arxivId = paperEntity.arxiv.toLowerCase().replace("arxiv:", "").split("v")[0];
+      scrapeURL = `${SS_BASE}/ARXIV:${arxivId}?${SS_FIELDS}`;
     } else {
-      scrapeURL = `https://api.paperlib.app/metadata/citationcount?title=${stringUtils.formatString(
-        {
-          str: paperEntity.title,
-          whiteSymbol: true,
-        }
-      )}`;
+      const query = stringUtils.formatString({
+        str: paperEntity.title,
+        whiteSymbol: true,
+      });
+      scrapeURL = `${SS_BASE}/search?query=${query}&${SS_FIELDS}&limit=5`;
     }
 
     try {
